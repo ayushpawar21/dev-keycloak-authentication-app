@@ -1,0 +1,11 @@
+{
+  "realm": "demo-app",
+  "auth-server-url": "http://192.168.56.101/auth",
+  "ssl-required": "none",
+  "resource": "demo-app",
+  "credentials": {
+    "secret": "x0jliWKgXJZF0l1OF9mL8dqTKeTTxify" 
+  },
+  "confidential-port": 0
+}
+

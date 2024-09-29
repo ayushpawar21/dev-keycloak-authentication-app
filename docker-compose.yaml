@@ -1,0 +1,68 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: keycloakdb
+      MYSQL_USER: keycloakuser
+      MYSQL_PASSWORD: keycloakpass
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      DB_VENDOR: mysql
+      DB_ADDR: mysql
+      DB_DATABASE: keycloakdb
+      DB_USER: keycloakuser
+      DB_PASSWORD: keycloakpass
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: adminpassword
+      KC_PROXY: edge
+    volumes:
+      - ./keycloak-data:/opt/jboss/keycloak/standalone/data
+    command: start --hostname-strict=false --http-relative-path=/auth
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+
+  node-app:
+    build: ./WebApp
+    container_name: node-app
+    environment:
+      KEYCLOAK_REALM: demo-app
+      KEYCLOAK_AUTH_URL: http://keycloak:8080/auth
+      KEYCLOAK_CLIENT_ID: demo-app
+      KEYCLOAK_CLIENT_SECRET: aHBMJCLcgp1aZwuiT0pCVDzFo8vFsegQ
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+      - keycloak
+    networks:
+      - keycloak-network
+    restart: unless-stopped
+
+volumes:
+  keycloak-mysql:
+  keycloak-data:
+
+networks:
+  keycloak-network:
+    driver: bridge
