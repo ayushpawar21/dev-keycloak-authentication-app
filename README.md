@@ -1,3 +1,4 @@
+
 # Dockerized Web Application with Nginx & Keycloak
 
 This project provides a step-by-step guide to install Docker, Docker Compose, and Nginx, and deploy a web application with Keycloak authentication using Docker. Follow the instructions below to set up the environment.
@@ -114,14 +115,58 @@ sudo systemctl reload nginx
 
 ---
 
-## 4. Deploy the Web Application with Keycloak
+## 4. Keycloak Configuration
 
-Clone the web application repository and run it using Docker Compose.
+After setting up Keycloak, you will need to configure a realm and a client for the web application authentication.
+
+### 4.1 Create a New Realm
+
+Log in to the Keycloak admin console and create a new realm named **demo-app**.
+
+### 4.2 Create a New Client and Secret
+
+Once the realm is created, create a new client in the **demo-app** realm and generate a secret. Use this secret to configure your authentication app.
+
+---
+
+## 5. Update Keycloak Configuration in `keycloak.json`
+
+Navigate to the location where the Keycloak configuration file is located in your project.
 
 ```bash
-git clone https://github.com/ayushpawar21/dev-keycloak-authentication-app.git
-cd dev-keycloak-authentication-app
-docker-compose up -d
+cd dev-keycloak-authentication-app/WebApp/
+sudo vim keycloak.json
+```
+
+Update the file as follows with the new realm and secret:
+
+```json
+{
+  "realm": "demo-app",
+  "auth-server-url": "http://192.168.56.101/auth",
+  "ssl-required": "none",
+  "resource": "demo-app",
+  "credentials": {
+    "secret": "x0jliWKgXJZF0l1OF9mL8dqTKeTTxify"  ## -- update the generated secret here
+  },
+  "confidential-port": 0
+}
+```
+
+---
+
+## 6. Rebuild and Restart Docker Compose
+
+Once you've updated the `keycloak.json` file with the new secret, bring down the Docker containers:
+
+```bash
+docker-compose down
+```
+
+Rebuild and restart the Docker containers:
+
+```bash
+docker compose up --build -d
 ```
 
 Allow 5 minutes for the services to initialize and become fully operational.
@@ -139,3 +184,4 @@ Your web application and Keycloak are now running behind an Nginx reverse proxy.
 - Ensure Docker and Docker Compose are installed correctly by verifying their versions.
 - Use `docker-compose logs` to check logs if any service fails to start.
 - Test Nginx configuration with `nginx -t` to ensure no syntax errors exist.
+
