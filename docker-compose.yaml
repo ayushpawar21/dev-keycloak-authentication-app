@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  keycloak-mysql:
+  mysql_data:
   keycloak-data:
 
 networks:
