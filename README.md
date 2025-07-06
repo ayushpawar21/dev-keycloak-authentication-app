@@ -143,7 +143,7 @@ Update the file as follows with the new realm and secret:
 ```json
 {
   "realm": "demo-app",
-  "auth-server-url": "http://192.168.56.101/auth",
+  "auth-server-url": "http://192.168.56.101/auth", ## -- update the ip address
   "ssl-required": "none",
   "resource": "demo-app",
   "credentials": {
